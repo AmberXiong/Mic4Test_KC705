@@ -13,14 +13,15 @@ module Temp_Sensor #(parameter TS_COUNT_WIDTH=32 //% Width of internal counter
   input RESET, //% system reset
   input pulse_in, //% pulse for output
   inout ts_data, //% inout port connects to chip emperature sensor
-  output reg [TS_COUNT_WIDTH-1:0] pulse_length, //% the length of pulse equals to Tclk*pulse_length
-  output reg valid //% a flag signal indicates the counter is stopped
+  output reg [TS_COUNT_WIDTH-1:0] MEM_OUT //% data sent to memory, the length of pulse equals to Tclk*MEM_OUT
   );
 reg [TS_COUNT_WIDTH-1:0] t_counter;
 reg [4:0] cnt_20;
 reg [4:0] cnt_30;
 reg pulse_out;
 reg en_out;
+reg [TS_COUNT_WIDTH-1:0] pulse_length;
+reg valid;
 
 reg [5:0] c_state, n_state;
 parameter s0=6'b000001;
@@ -31,6 +32,16 @@ parameter s4=6'b010000;
 parameter s5=6'b100000;
 
 assign ts_data=(en_out==1)?pulse_out:1'bz;
+
+always@(posedge clk_100MHz or posedge RESET)
+ begin
+  if(RESET) begin MEM_OUT<= 32'b0; end
+  else
+   begin
+    if(valid) begin MEM_OUT<=pulse_length; end
+    else begin MEM_OUT<=MEM_OUT; end
+   end
+ end
 
 always@(posedge clk_100MHz or posedge RESET)
  begin

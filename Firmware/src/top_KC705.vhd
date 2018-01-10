@@ -471,62 +471,46 @@ ARCHITECTURE Behavioral OF top IS
     );
   END COMPONENT;
   ---------------------------------------------> debug : ILA and VIO (`Chipscope')
-  ---------------------------------------------< topmetal_analog_scan_diff
-  COMPONENT topmetal_analog_scan_diff 
+  ---------------------------------------------< Mic4 pixel config
+  COMPONENT Pixle_Config
     GENERIC (
-      ROWS          : positive := 45;     -- number of ROWS in the array
-      COLS          : positive := 216;     -- number of COLS in the ARRAY
-      CLK_DIV_WIDTH : positive := 16;
-      CLK_DIV_WLOG2 : positive := 4;
-      CONFIG_WIDTH  : positive := 16
+      DIV_WIDTH : positive := 6;
+      COUNT_WIDTH : positive := 64;
+      DATA_WIDTH : positive := 15;
+      SHIFT_DIRECTION : positive := 1;
+      CNT_WIDTH : positive := 4
     );
     PORT (
-      CLK           : IN  std_logic;      -- clock, TM_CLK_S is derived from this one
-      RESET         : IN  std_logic;      -- reset
-      -- data input for writing to in-chip SRAM
-      MEM_CLK       : IN  std_logic;      -- connect to control_interface
-      MEM_WE        : IN  std_logic;
-      MEM_ADDR      : IN  std_logic_vector(31 DOWNTO 0);
-      MEM_DIN       : IN  std_logic_vector(31 DOWNTO 0);
-      SRAM_WR_START : IN  std_logic;  -- 1 MEM_CLK wide pulse to initiate in-chip SRAM write
+      SYS_CLK     : IN  std_logic;      -- clock, S_CLK is derived from this one
+      RESET       : IN  std_logic;      -- reset
+      -- data input for writing to in-chip FIFO
+      SRAM_WE     : IN  std_logic;
+      SRAM_DATA   : IN  std_logic_vector(31 DOWNTO 0);
       -- configuration
-      CLK_DIV       : IN  std_logic_vector(CLK_DIV_WLOG2-1 DOWNTO 0);  -- log2(CLK_DIV_WIDTH), CLK/(2**CLK_DIV)
-      WR_CLK_DIV    : IN  std_logic_vector(CLK_DIV_WLOG2-1 DOWNTO 0);
-      STOP_ADDR     : IN  std_logic_vector(CONFIG_WIDTH-1 DOWNTO 0);  --MSB enables
-      TRIGGER_RATE  : IN  std_logic_vector(CONFIG_WIDTH-1 DOWNTO 0);  --trigger every () frames
-      TRIGGER_DELAY : IN  std_logic_vector(CONFIG_WIDTH-1 DOWNTO 0);
-      STOP_CLK_S    : IN  std_logic;  -- 1: stop TM_CLK_S, 0: run TM_CLK_S
-      KEEP_WE       : IN  std_logic;  -- 1: SRAM_WE keep high in writing mode, 0: SRAM_WE runs in writing mode
+      DIV         : IN  std_logic_vector(DIV_WIDTH-1 DOWNTO 0);  -- CLK/(2**DIV)
       -- input
-      MARKER_A      : IN  std_logic;
+      pulse_start : IN  std_logic;
+      BUSY        : IN  std_logic;
       -- output
-      TRIGGER_OUT_P : OUT std_logic;
-      TRIGGER_OUT_N : OUT std_logic;
-      --
-      SRAM_D0_P     : OUT std_logic;
-      SRAM_D0_N     : OUT std_logic;
-      SRAM_D1_P     : OUT std_logic;
-      SRAM_D1_N     : OUT std_logic;
-      SRAM_D2_P     : OUT std_logic;
-      SRAM_D2_N     : OUT std_logic;
-      SRAM_D3_P     : OUT std_logic;
-      SRAM_D3_N     : OUT std_logic;
-      --
-      SRAM_WE_P     : OUT std_logic;
-      SRAM_WE_N     : OUT std_logic;
-      TM_RST_P      : OUT std_logic;      -- digital reset
-      TM_RST_N      : OUT std_logic;      -- digital reset
-      TM_CLK_S_P    : OUT std_logic;
-      TM_CLK_S_N    : OUT std_logic;
-      TM_RST_S_P    : OUT std_logic;
-      TM_RST_S_N    : OUT std_logic;
-      TM_START_S_P  : OUT std_logic;
-      TM_START_S_N  : OUT std_logic;
-      TM_SPEAK_S_P  : OUT std_logic;
-      TM_SPEAK_S_N  : OUT std_logic
+      S_CLK       : OUT std_logic;
+      S_DATA      : OUT std_logic
     );
   END COMPONENT;
-  ---------------------------------------------> topmetal_analog_scan_diff
+  ---------------------------------------------> Mic4 pixel config
+  ---------------------------------------------< Mic4 temperature sensor
+  COMPONENT Temp_Sensor
+    GENERIC (
+      TS_COUNT_WIDTH : positive := 32
+    );
+    PORT (
+      clk_100MHz : IN std_logic;
+      RESET : IN std_logic;
+      pulse_in : IN std_logic;
+      ts_data : INOUT std_logic;
+      MEM_OUT : OUT std_logic_vector(TS_COUNT_WIDTH-1 DOWNTO 0)
+    );
+  END COMPONENT;
+  ---------------------------------------------> Mic4 temperature sensor  
     
   -- Signals
   SIGNAL reset                             : std_logic;  
@@ -761,17 +745,12 @@ ARCHITECTURE Behavioral OF top IS
   SIGNAL spi_sync_n1                       : std_logic;
   SIGNAL spi_sync_n2                       : std_logic;  
   ---------------------------------------------> shiftreg driver for DAC8568
-  ---------------------------------------------< topmetal_analog_scan_diff
-  SIGNAL  SRAM_WR_START : std_logic;  -- 1 MEM_CLK wide pulse to initiate in-chip SRAM write
-  -- configuration
-  SIGNAL  TM_CLK_DIV    : std_logic_vector(3 DOWNTO 0);  -- log2(CLK_DIV_WIDTH), CLK/(2**CLK_DIV)
-  SIGNAL  WR_CLK_DIV    : std_logic_vector(3 DOWNTO 0);
-  SIGNAL  STOP_ADDR     : std_logic_vector(15 DOWNTO 0);  --MSB enables
-  SIGNAL  TRIGGER_RATE  : std_logic_vector(15 DOWNTO 0);  --trigger every () frames
-  SIGNAL  TRIGGER_DELAY : std_logic_vector(15 DOWNTO 0);
-  SIGNAL  STOP_CLK_S    : std_logic;  -- 1: stop TM_CLK_S, 0: run TM_CLK_S
-  SIGNAL  KEEP_WE       : std_logic;  -- 1: SRAM_WE keep high in writing mode, 0: SRAM_WE runs in writing mode
-  ---------------------------------------------> tometal_analog_scan_diff
+  ---------------------------------------------< Mic4 pixel config
+  SIGNAL  mic_pc_div : std_logic_vector(5 DOWNTO 0);
+  ---------------------------------------------> Mic4 pixel config
+  ---------------------------------------------< Mic4 temperature sensor
+  SIGNAL mem_out     : std_logic_vector(31 DOWNTO 0);
+  ---------------------------------------------> Mic4 temperature sensor
 
 BEGIN
   ---------------------------------------------< Clock
@@ -903,7 +882,7 @@ BEGIN
       MEM_WE          => control_mem_we,
       MEM_ADDR        => control_mem_addr,
       MEM_DIN         => control_mem_din,
-      MEM_DOUT        => (OTHERS => '0'),
+      MEM_DOUT        => mem_out,
       -- Data FIFO interface, FWFT
       DATA_FIFO_Q     => idata_data_fifo_dout,
       DATA_FIFO_EMPTY => idata_data_fifo_empty,
@@ -1402,68 +1381,40 @@ BEGIN
       I  => spi_sync_n2
     );
   ---------------------------------------------> shiftreg driver for DAC8568
-  ---------------------------------------------< topmetal_analog_scan_diff
-  SRAM_WR_START <= pulse_reg(2);
-  TM_CLK_DIV <= config_reg(179 DOWNTO 176);
-  WR_CLK_DIV <= config_reg(183 DOWNTO 180);
-  STOP_CLK_S    <= config_reg(184);
-  KEEP_WE       <= config_reg(185);
-  STOP_ADDR <= config_reg(207 DOWNTO 192);
-  TRIGGER_RATE <= config_reg(223 DOWNTO 208); 
-  TRIGGER_DELAY <= config_reg(239 DOWNTO 224);
-  topmetal_analog_scan_diff_inst : topmetal_analog_scan_diff
+  ---------------------------------------------< Mic4 pixel config
+  mic_pc_div <= config_reg(5 DOWNTO 0);
+  Pixel_Config_inst : Pixel_Config
     GENERIC MAP(
-      ROWS  =>  45,     -- number of ROWS in the array
-      COLS  => 216,     -- number of COLS in the ARRAY
-      CLK_DIV_WIDTH => 16,
-      CLK_DIV_WLOG2 => 4,
-      CONFIG_WIDTH  => 16
+      DIV_WIDTH       => 6,
+      COUNT_WIDTH     => 64,
+      DATA_WIDTH      => 15,
+      SHIFT_DIRECTION => 1,
+      CNT_WIDTH       => 4
     )
     PORT MAP (
-      CLK           => control_clk,     -- clock, TM_CLK_S is derived from this one
-      RESET         => reset,           -- reset
-      -- data input for writing to in-chip SRAM
-      MEM_CLK       => control_clk,     -- connect to control_interface
-      MEM_WE        => control_mem_we,
-      MEM_ADDR      => control_mem_addr,
-      MEM_DIN       => control_mem_din,
-      SRAM_WR_START => SRAM_WR_START, -- 1 MEM_CLK wide pulse to initiate in-chip SRAM write
-      -- configuration
-      CLK_DIV       => TM_CLK_DIV, -- log2(CLK_DIV_WIDTH), CLK/(2**CLK_DIV)
-      WR_CLK_DIV    => WR_CLK_DIV,
-      STOP_ADDR     => STOP_ADDR,--MSB enables
-      TRIGGER_RATE  => TRIGGER_RATE,--trigger every () frames
-      TRIGGER_DELAY => TRIGGER_DELAY,
-      STOP_CLK_S    => STOP_CLK_S,
-      KEEP_WE       => KEEP_WE,
-      -- input
-      MARKER_A      => '0',
-      -- output
-      --TRIGGER_OUT_P => 
-      --TRIGGER_OUT_N => 
-      --
-      SRAM_D0_P     => FMC_HPC_LA_P(21),
-      SRAM_D0_N     => FMC_HPC_LA_N(21),
-      SRAM_D1_P     => FMC_HPC_LA_P(22),
-      SRAM_D1_N     => FMC_HPC_LA_N(22),
-      SRAM_D2_P     => FMC_HPC_LA_P(23),
-      SRAM_D2_N     => FMC_HPC_LA_N(23),
-      SRAM_D3_P     => FMC_HPC_LA_P(24),
-      SRAM_D3_N     => FMC_HPC_LA_N(24),
-      --
-      SRAM_WE_P     => FMC_HPC_LA_P(25),
-      SRAM_WE_N     => FMC_HPC_LA_N(25),
-      --TM_RST_P      => FMC_HPC_LA_P    -- digital reset
-      --TM_RST_N      => FMC_HPC_LA_N    -- digital reset
-      TM_CLK_S_P    => FMC_HPC_CLK1_M2C_P,
-      TM_CLK_S_N    => FMC_HPC_CLK1_M2C_N,
-      TM_RST_S_P    => FMC_HPC_LA_P(26),
-      TM_RST_S_N    => FMC_HPC_LA_N(26),
-      TM_START_S_P  => FMC_HPC_LA_P(27),
-      TM_START_S_N  => FMC_HPC_LA_N(27),
-      TM_SPEAK_S_P  => FMC_HPC_LA_P(28),
-      TM_SPEAK_S_N  => FMC_HPC_LA_N(28)
+      SYS_CLK      => control_clk,
+      RESET        => reset,
+      DIV          => mic_pc_div,
+      SRAM_DATA    => control_mem_din,
+      SRAM_WE      => control_mem_we,
+      pulse_start  => pulse_reg(2),
+      BUSY         => FMC_HPC_HA_P(23), 
+      S_CLK        => FMC_HPC_LA_P(22),
+      S_DATA       => FMC_HPC_LA_P(25) 
    );
-  ---------------------------------------------> topmetal_analog_scan_diff
+  ---------------------------------------------> Mic4 pixel config
+  ---------------------------------------------< Mic4 temperature sensor
+  Temp_Sensor_inst : Temp_Sensor
+    GENERIC MAP(
+      TS_COUNT_WIDTH => 32
+    )
+    PORT MAP (
+      clk_100MHz => control_clk,
+      RESET      => reset,
+      pulse_in   => pulse_reg(3),
+      ts_data    => FMC_HPC_HA_P(21),
+      MEM_OUT    => mem_out
+   );
+  ---------------------------------------------> Mic4 temperature sensor
 
 END Behavioral;

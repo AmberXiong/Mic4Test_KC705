@@ -169,8 +169,9 @@ set files [list \
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/SR_Control.v"]"\
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Clock_SR.v"]"\
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Top_SR.v"]"\
- "[file normalize "$origin_dir/../src/topmetal_analog_scan_diff.vhd"]"\
- "[file normalize "$origin_dir/../src/topmetal_analog_scan.vhd"]"\
+ "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config_statemachine.v"]"\
+ "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config.v"]"\
+ "[file normalize "$origin_dir/../src/pixel_config/Temp_Sensor.v"]"\
  "[file normalize "$origin_dir/../src/fifo2shiftreg.vhd"]"\
  "[file normalize "$origin_dir/../src/shiftreg_drive.vhd"]"\
 ]
@@ -577,6 +578,19 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets sources_1]
 set files [list \
  "[file normalize "$origin_dir/../ipcore_dir/KC705/fifo16to32/fifo16to32.xci"]"\
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'sources_1' fileset file properties for remote files
+# None
+
+# Set 'sources_1' fileset file properties for local files
+# None
+
+# Set 'sources_1' fileset object
+set obj [get_filesets sources_1]
+set files [list \
+ "[file normalize "$origin_dir/../ipcore_dir/KC705/fifo32to16/fifo32to16.xci"]"\
 ]
 add_files -norecurse -fileset $obj $files
 

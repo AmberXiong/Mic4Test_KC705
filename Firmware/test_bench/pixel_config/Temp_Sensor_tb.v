@@ -10,8 +10,7 @@ reg pulse_in;
 reg en_in;
 reg ts_out;
 wire ts_data;
-wire [TS_COUNT_WIDTH-1:0] pulse_length;
-wire valid;
+wire [TS_COUNT_WIDTH-1:0] MEM_OUT;
 
 assign ts_data=(en_in==1)?ts_out:1'bz;
 
@@ -21,8 +20,7 @@ Temp_Sensor #(.TS_COUNT_WIDTH(TS_COUNT_WIDTH))
    .RESET(RESET),
    .pulse_in(pulse_in),
    .ts_data(ts_data),
-   .pulse_length(pulse_length),
-   .valid(valid)
+   .MEM_OUT(MEM_OUT)
    );
 
 initial begin
@@ -41,6 +39,8 @@ pulse_in=0;
 #100 RESET=0;
 #20 pulse_in=1;
 #10 pulse_in=0;
+#720 pulse_in=1;
+#10 pulse_in=0;
 end
 
 initial begin
@@ -51,5 +51,10 @@ ts_out=0;
 en_in=1;
 #10  ts_out=1;
 #160 ts_out=0;
+#60 en_in=0;
+#500
+en_in=1;
+#20  ts_out=1;
+#200 ts_out=0;
 end
 endmodule
