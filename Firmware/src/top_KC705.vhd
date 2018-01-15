@@ -1272,7 +1272,7 @@ BEGIN
   ---------------------------------------------< TOP_SR
   div <= config_reg(22 DOWNTO 17);
   din <= config_reg(15 DOWNTO 0);
-  idata_data_fifo_dout <= fifo_q(31 DOWNTO 0) WHEN config(16)= '1'  ELSE x"0000"; -- x"0000" will be modified to FD_OUT of mic4 chip when the receiver is done.
+  idata_data_fifo_dout <= fifo_q(31 DOWNTO 0) WHEN config¡ª¡ªreg(16)= '1'  ELSE x"00000000"; -- x"0000" will be modified to FD_OUT of mic4 chip when the receiver is done.
   Top_SR_0 : Top_SR
     GENERIC MAP (
       WIDTH           => 200,
