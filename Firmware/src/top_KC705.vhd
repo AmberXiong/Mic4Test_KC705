@@ -262,7 +262,7 @@ ARCHITECTURE Behavioral OF top IS
   ---------------------------------------------< TOP_SR
   COMPONENT Top_SR IS
     GENERIC (
-      WIDTH           : positive := 170;
+      WIDTH           : positive := 200;
       CNT_WIDTH       : positive := 8;
       DIV_WIDTH       : positive := 6;
       COUNT_WIDTH     : positive := 64;
@@ -366,79 +366,79 @@ ARCHITECTURE Behavioral OF top IS
   END COMPONENT;
   ---------------------------------------------> UART/RS232
   ---------------------------------------------< SDRAM
-  COMPONENT sdram_ddr3
-    GENERIC (
-      INDATA_WIDTH   : positive := 256;
-      OUTDATA_WIDTH  : positive := 32;
-      APP_ADDR_WIDTH : positive := 28;
-      APP_DATA_WIDTH : positive := 512;
-      APP_MASK_WIDTH : positive := 64;
-      APP_ADDR_BURST : positive := 8
-    );
-    PORT (
-      CLK                   : IN    std_logic;  -- system clock, must be the same as intended in MIG
-      REFCLK                : IN    std_logic;  -- 200MHz for iodelay
-      RESET                 : IN    std_logic;
-      -- SDRAM_DDR3
-      -- Inouts
-      DDR3_DQ               : INOUT std_logic_vector(63 DOWNTO 0);
-      DDR3_DQS_P            : INOUT std_logic_vector(7 DOWNTO 0);
-      DDR3_DQS_N            : INOUT std_logic_vector(7 DOWNTO 0);
-      -- Outputs
-      DDR3_ADDR             : OUT   std_logic_vector(13 DOWNTO 0);
-      DDR3_BA               : OUT   std_logic_vector(2 DOWNTO 0);
-      DDR3_RAS_N            : OUT   std_logic;
-      DDR3_CAS_N            : OUT   std_logic;
-      DDR3_WE_N             : OUT   std_logic;
-      DDR3_RESET_N          : OUT   std_logic;
-      DDR3_CK_P             : OUT   std_logic_vector(0 DOWNTO 0);
-      DDR3_CK_N             : OUT   std_logic_vector(0 DOWNTO 0);
-      DDR3_CKE              : OUT   std_logic_vector(0 DOWNTO 0);
-      DDR3_CS_N             : OUT   std_logic_vector(0 DOWNTO 0);
-      DDR3_DM               : OUT   std_logic_vector(7 DOWNTO 0);
-      DDR3_ODT              : OUT   std_logic_vector(0 DOWNTO 0);
-      -- Status Outputs
-      INIT_CALIB_COMPLETE   : OUT   std_logic;
-      -- Internal data r/w interface
-      UI_CLK                : OUT   std_logic;
-      --
-      CTRL_RESET            : IN    std_logic;
-      WR_START              : IN    std_logic;
-      WR_ADDR_BEGIN         : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      WR_STOP               : IN    std_logic;
-      WR_WRAP_AROUND        : IN    std_logic;
-      POST_TRIGGER          : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      WR_BUSY               : OUT   std_logic;
-      WR_POINTER            : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      TRIGGER_POINTER       : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      WR_WRAPPED            : OUT   std_logic;
-      RD_START              : IN    std_logic;
-      RD_ADDR_BEGIN         : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      RD_ADDR_END           : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      RD_BUSY               : OUT   std_logic;
-      --
-      DATA_FIFO_RESET       : IN    std_logic;
-      INDATA_FIFO_WRCLK     : IN    std_logic;
-      INDATA_FIFO_Q         : IN    std_logic_vector(INDATA_WIDTH-1 DOWNTO 0);
-      INDATA_FIFO_FULL      : OUT   std_logic;
-      INDATA_FIFO_WREN      : IN    std_logic;
-      --
-      OUTDATA_FIFO_RDCLK    : IN    std_logic;
-      OUTDATA_FIFO_Q        : OUT   std_logic_vector(OUTDATA_WIDTH-1 DOWNTO 0);
-      OUTDATA_FIFO_EMPTY    : OUT   std_logic;
-      OUTDATA_FIFO_RDEN     : IN    std_logic;
-      --
-      DBG_APP_ADDR          : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
-      DBG_APP_EN            : OUT   std_logic;
-      DBG_APP_RDY           : OUT   std_logic;
-      DBG_APP_WDF_DATA      : OUT   std_logic_vector(APP_DATA_WIDTH-1 DOWNTO 0);
-      DBG_APP_WDF_END       : OUT   std_logic;
-      DBG_APP_WDF_WREN      : OUT   std_logic;
-      DBG_APP_WDF_RDY       : OUT   std_logic;
-      DBG_APP_RD_DATA       : OUT   std_logic_vector(APP_DATA_WIDTH-1 DOWNTO 0);
-      DBG_APP_RD_DATA_VALID : OUT   std_logic
-    );
-  END COMPONENT;
+--  COMPONENT sdram_ddr3
+--    GENERIC (
+--      INDATA_WIDTH   : positive := 256;
+--      OUTDATA_WIDTH  : positive := 32;
+--      APP_ADDR_WIDTH : positive := 28;
+--      APP_DATA_WIDTH : positive := 512;
+--      APP_MASK_WIDTH : positive := 64;
+--      APP_ADDR_BURST : positive := 8
+--    );
+--    PORT (
+--      CLK                   : IN    std_logic;  -- system clock, must be the same as intended in MIG
+--      REFCLK                : IN    std_logic;  -- 200MHz for iodelay
+--      RESET                 : IN    std_logic;
+--      -- SDRAM_DDR3
+--      -- Inouts
+--      DDR3_DQ               : INOUT std_logic_vector(63 DOWNTO 0);
+--      DDR3_DQS_P            : INOUT std_logic_vector(7 DOWNTO 0);
+--      DDR3_DQS_N            : INOUT std_logic_vector(7 DOWNTO 0);
+--      -- Outputs
+--      DDR3_ADDR             : OUT   std_logic_vector(13 DOWNTO 0);
+--      DDR3_BA               : OUT   std_logic_vector(2 DOWNTO 0);
+--      DDR3_RAS_N            : OUT   std_logic;
+--      DDR3_CAS_N            : OUT   std_logic;
+--      DDR3_WE_N             : OUT   std_logic;
+--      DDR3_RESET_N          : OUT   std_logic;
+--      DDR3_CK_P             : OUT   std_logic_vector(0 DOWNTO 0);
+--      DDR3_CK_N             : OUT   std_logic_vector(0 DOWNTO 0);
+--      DDR3_CKE              : OUT   std_logic_vector(0 DOWNTO 0);
+--      DDR3_CS_N             : OUT   std_logic_vector(0 DOWNTO 0);
+--      DDR3_DM               : OUT   std_logic_vector(7 DOWNTO 0);
+--      DDR3_ODT              : OUT   std_logic_vector(0 DOWNTO 0);
+--      -- Status Outputs
+--      INIT_CALIB_COMPLETE   : OUT   std_logic;
+--      -- Internal data r/w interface
+--      UI_CLK                : OUT   std_logic;
+--      --
+--      CTRL_RESET            : IN    std_logic;
+--      WR_START              : IN    std_logic;
+--      WR_ADDR_BEGIN         : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      WR_STOP               : IN    std_logic;
+--      WR_WRAP_AROUND        : IN    std_logic;
+--      POST_TRIGGER          : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      WR_BUSY               : OUT   std_logic;
+--      WR_POINTER            : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      TRIGGER_POINTER       : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      WR_WRAPPED            : OUT   std_logic;
+--      RD_START              : IN    std_logic;
+--      RD_ADDR_BEGIN         : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      RD_ADDR_END           : IN    std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      RD_BUSY               : OUT   std_logic;
+--      --
+--      DATA_FIFO_RESET       : IN    std_logic;
+--      INDATA_FIFO_WRCLK     : IN    std_logic;
+--      INDATA_FIFO_Q         : IN    std_logic_vector(INDATA_WIDTH-1 DOWNTO 0);
+--      INDATA_FIFO_FULL      : OUT   std_logic;
+--      INDATA_FIFO_WREN      : IN    std_logic;
+--      --
+--      OUTDATA_FIFO_RDCLK    : IN    std_logic;
+--      OUTDATA_FIFO_Q        : OUT   std_logic_vector(OUTDATA_WIDTH-1 DOWNTO 0);
+--      OUTDATA_FIFO_EMPTY    : OUT   std_logic;
+--      OUTDATA_FIFO_RDEN     : IN    std_logic;
+--      --
+--      DBG_APP_ADDR          : OUT   std_logic_vector(APP_ADDR_WIDTH-1 DOWNTO 0);
+--      DBG_APP_EN            : OUT   std_logic;
+--      DBG_APP_RDY           : OUT   std_logic;
+--      DBG_APP_WDF_DATA      : OUT   std_logic_vector(APP_DATA_WIDTH-1 DOWNTO 0);
+--      DBG_APP_WDF_END       : OUT   std_logic;
+--      DBG_APP_WDF_WREN      : OUT   std_logic;
+--      DBG_APP_WDF_RDY       : OUT   std_logic;
+--      DBG_APP_RD_DATA       : OUT   std_logic_vector(APP_DATA_WIDTH-1 DOWNTO 0);
+--      DBG_APP_RD_DATA_VALID : OUT   std_logic
+--    );
+--  END COMPONENT;
   ---------------------------------------------> SDRAM
   ---------------------------------------------< debug : ILA and VIO (`Chipscope')
   COMPONENT dbg_ila
@@ -612,15 +612,15 @@ ARCHITECTURE Behavioral OF top IS
   SIGNAL gig_eth_rx_fifo_empty             : std_logic;
   ---------------------------------------------> gig_eth
   ---------------------------------------------< SDRAM
-  SIGNAL sdram_app_addr                    : std_logic_vector(28-1 DOWNTO 0);
-  SIGNAL sdram_app_en                      : std_logic;
-  SIGNAL sdram_app_rdy                     : std_logic;
-  SIGNAL sdram_app_wdf_data                : std_logic_vector(512-1 DOWNTO 0);
-  SIGNAL sdram_app_wdf_end                 : std_logic;
-  SIGNAL sdram_app_wdf_wren                : std_logic;
-  SIGNAL sdram_app_wdf_rdy                 : std_logic;
-  SIGNAL sdram_app_rd_data                 : std_logic_vector(512-1 DOWNTO 0);
-  SIGNAL sdram_app_rd_data_valid           : std_logic;
+--  SIGNAL sdram_app_addr                    : std_logic_vector(28-1 DOWNTO 0);
+--  SIGNAL sdram_app_en                      : std_logic;
+--  SIGNAL sdram_app_rdy                     : std_logic;
+--  SIGNAL sdram_app_wdf_data                : std_logic_vector(512-1 DOWNTO 0);
+--  SIGNAL sdram_app_wdf_end                 : std_logic;
+--  SIGNAL sdram_app_wdf_wren                : std_logic;
+--  SIGNAL sdram_app_wdf_rdy                 : std_logic;
+--  SIGNAL sdram_app_rd_data                 : std_logic_vector(512-1 DOWNTO 0);
+--  SIGNAL sdram_app_rd_data_valid           : std_logic;
   ---------------------------------------------> SDRAM
   ---------------------------------------------< IDATA
   SIGNAL TRIG_OUT_0                        : std_logic;
@@ -717,22 +717,17 @@ ARCHITECTURE Behavioral OF top IS
   ATTRIBUTE mark_debug OF gig_eth_tx_fifo_q       : SIGNAL IS "true";
   ATTRIBUTE mark_debug OF gig_eth_rx_fifo_q       : SIGNAL IS "true";
   --
-  ATTRIBUTE mark_debug OF sdram_app_addr          : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_en            : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_rdy           : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_wdf_data      : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_wdf_end       : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_wdf_wren      : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_wdf_rdy       : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_rd_data       : SIGNAL IS "true";
-  ATTRIBUTE mark_debug OF sdram_app_rd_data_valid : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_addr          : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_en            : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_rdy           : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_wdf_data      : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_wdf_end       : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_wdf_wren      : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_wdf_rdy       : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_rd_data       : SIGNAL IS "true";
+--  ATTRIBUTE mark_debug OF sdram_app_rd_data_valid : SIGNAL IS "true";
   ---------------------------------------------> debug
   ---------------------------------------------< TOP_SR
---  SIGNAL div                               : std_logic_vector (5 DOWNTO 0);
---  SIGNAL din                               : std_logic_vector (169 DOWNTO 0);
---  SIGNAL dout                              : std_logic_vector( 169 DOWNTO 0);
---  SIGNAL valid                             : std_logic;
---  SIGNAL clk_sr_contr                      : std_logic;
   SIGNAL div                               : std_logic_vector(5 DOWNTO 0);
   SIGNAL din                               : std_logic_vector(15 DOWNTO 0);
   SIGNAL clk_sr_contr                      : std_logic;
@@ -1121,116 +1116,116 @@ BEGIN
   END GENERATE gig_eth_cores;
   ---------------------------------------------> gig_eth
   ---------------------------------------------< SDRAM
-  sdram_ddr3_inst : sdram_ddr3
-    PORT MAP (
-      CLK                   => sys_clk,  -- system clock, must be the same as intended in MIG
-      REFCLK                => sys_clk,  -- 200MHz for iodelay
-      RESET                 => reset,
-      -- SDRAM_DDR3
-      -- Inouts
-      DDR3_DQ               => DDR3_DQ,
-      DDR3_DQS_P            => DDR3_DQS_P,
-      DDR3_DQS_N            => DDR3_DQS_N,
-      -- Outputs
-      DDR3_ADDR             => DDR3_ADDR,
-      DDR3_BA               => DDR3_BA,
-      DDR3_RAS_N            => DDR3_RAS_N,
-      DDR3_CAS_N            => DDR3_CAS_N,
-      DDR3_WE_N             => DDR3_WE_N,
-      DDR3_RESET_N          => DDR3_RESET_N,
-      DDR3_CK_P             => DDR3_CK_P,
-      DDR3_CK_N             => DDR3_CK_N,
-      DDR3_CKE              => DDR3_CKE,
-      DDR3_CS_N             => DDR3_CS_N,
-      DDR3_DM               => DDR3_DM,
-      DDR3_ODT              => DDR3_ODT,
-      -- Status Outputs
-      INIT_CALIB_COMPLETE   => LED8Bit(4),
-      -- Internal data r/w interface
-      UI_CLK                => clk_200MHz,
-      --
-      CTRL_RESET            => pulse_reg(6),
-      WR_START              => idata_data_wr_start,
-      WR_ADDR_BEGIN         => config_reg(32*4+27 DOWNTO 32*4),
-      WR_STOP               => pulse_reg(4),
-      WR_WRAP_AROUND        => config_reg(32*4+28),
-      POST_TRIGGER          => config_reg(32*5+27 DOWNTO 32*5),
-      WR_BUSY               => idata_data_wr_busy,
-      WR_POINTER            => OPEN,
-      --TRIGGER_POINTER       => status_reg(64*2+27 DOWNTO 64*2),
-      WR_WRAPPED            => idata_data_wr_wrapped,
-      RD_START              => pulse_reg(5),
-      RD_ADDR_BEGIN         => (OTHERS => '0'),
-      RD_ADDR_END           => config_reg(32*6+27 DOWNTO 32*6),
-      --RD_BUSY               => status_reg(64*2+30),
-      --
-      DATA_FIFO_RESET       => idata_data_fifo_reset,
-      INDATA_FIFO_WRCLK     => idata_adc_data_clk,
-      INDATA_FIFO_Q         => idata_idata_fifo_q,
-      INDATA_FIFO_FULL      => idata_idata_fifo_full,
-      INDATA_FIFO_WREN      => idata_idata_fifo_wren,
-      --
-      OUTDATA_FIFO_RDCLK    => idata_data_fifo_rdclk,
-      OUTDATA_FIFO_Q        => idata_data_fifo_dout,
-      OUTDATA_FIFO_EMPTY    => idata_data_fifo_empty,
-      OUTDATA_FIFO_RDEN     => idata_data_fifo_rden,
-      --
-      DBG_APP_ADDR          => sdram_app_addr,
-      DBG_APP_EN            => sdram_app_en,
-      DBG_APP_RDY           => sdram_app_rdy,
-      DBG_APP_WDF_DATA      => sdram_app_wdf_data,
-      DBG_APP_WDF_END       => sdram_app_wdf_end,
-      DBG_APP_WDF_WREN      => sdram_app_wdf_wren,
-      DBG_APP_WDF_RDY       => sdram_app_wdf_rdy,
-      DBG_APP_RD_DATA       => sdram_app_rd_data,
-      DBG_APP_RD_DATA_VALID => sdram_app_rd_data_valid
-    );
-  idata_data_fifo_reset <= pulse_reg(2);
-  --status_reg(64*2+28)    <= idata_data_wr_busy;
-  --status_reg(64*2+29)    <= idata_data_wr_wrapped;
-  --
-  channel_sel_inst : channel_sel
-    PORT MAP (
-      CLK             => idata_adc_data_clk,  -- fifo wrclk
-      RESET           => reset,
-      SEL             => config_reg(32*7+7 DOWNTO 32*7),
-      --
-      DATA_FIFO_RESET => idata_data_fifo_reset,
-      --
-      INDATA_Q        => idata_channel_avg_outdata_q,
-      DATA_FIFO_WREN  => idata_data_fifo_wren,
-      DATA_FIFO_FULL  => idata_data_fifo_full,
-      --
-      OUTDATA_FIFO_Q  => idata_idata_fifo_q,
-      DATA_FIFO_RDEN  => idata_idata_fifo_rden,
-      DATA_FIFO_EMPTY => idata_idata_fifo_empty
-    );
-  idata_idata_fifo_rden <= NOT idata_idata_fifo_full;
-  idata_idata_fifo_wren <= NOT idata_idata_fifo_empty;
-  idata_data_fifo_wren  <= config_reg(32*6+31) AND idata_channel_avg_outvalid;
-  --
-  channel_avg_inst : channel_avg
-    PORT MAP (
-      RESET           => reset,
-      CLK             => idata_adc_data_clk,
-      -- high 4-bit is offset, 2**(low 4-bit) is number of points to average    
-      CONFIG          => config_reg(32*7+15 DOWNTO 32*7+8),
-      TRIG            => idata_data_wr_start,
-      INDATA_Q        => idata_data_fifo_din,
-      OUTVALID        => idata_channel_avg_outvalid,
-      OUTDATA_Q       => idata_channel_avg_outdata_q
-    );
-  --
-  dbg_ila_probe3(27 DOWNTO 0)               <= sdram_app_addr;
-  dbg_ila_probe3(28)                        <= sdram_app_en;
-  dbg_ila_probe3(29)                        <= sdram_app_rdy;
-  dbg_ila_probe3(30)                        <= sdram_app_wdf_wren;
-  dbg_ila_probe3(31)                        <= sdram_app_wdf_rdy;
-  dbg_ila_probe3(32)                        <= sdram_app_wdf_end;
-  dbg_ila_probe3(1023 DOWNTO 512)           <= sdram_app_wdf_data;
-  dbg_ila_probe3(1024+1023 DOWNTO 1024+512) <= sdram_app_rd_data;
-  dbg_ila_probe3(33)                        <= sdram_app_rd_data_valid;
-  dbg_ila_probe3(511 DOWNTO 336)            <= status_reg;
+--  sdram_ddr3_inst : sdram_ddr3
+--    PORT MAP (
+--      CLK                   => sys_clk,  -- system clock, must be the same as intended in MIG
+--      REFCLK                => sys_clk,  -- 200MHz for iodelay
+--      RESET                 => reset,
+--      -- SDRAM_DDR3
+--      -- Inouts
+--      DDR3_DQ               => DDR3_DQ,
+--      DDR3_DQS_P            => DDR3_DQS_P,
+--      DDR3_DQS_N            => DDR3_DQS_N,
+--      -- Outputs
+--      DDR3_ADDR             => DDR3_ADDR,
+--      DDR3_BA               => DDR3_BA,
+--      DDR3_RAS_N            => DDR3_RAS_N,
+--      DDR3_CAS_N            => DDR3_CAS_N,
+--      DDR3_WE_N             => DDR3_WE_N,
+--      DDR3_RESET_N          => DDR3_RESET_N,
+--      DDR3_CK_P             => DDR3_CK_P,
+--      DDR3_CK_N             => DDR3_CK_N,
+--      DDR3_CKE              => DDR3_CKE,
+--      DDR3_CS_N             => DDR3_CS_N,
+--      DDR3_DM               => DDR3_DM,
+--      DDR3_ODT              => DDR3_ODT,
+--      -- Status Outputs
+--      INIT_CALIB_COMPLETE   => LED8Bit(4),
+--      -- Internal data r/w interface
+--      UI_CLK                => clk_200MHz,
+--      --
+--      CTRL_RESET            => pulse_reg(6),
+--      WR_START              => idata_data_wr_start,
+--      WR_ADDR_BEGIN         => config_reg(32*4+27 DOWNTO 32*4),
+--      WR_STOP               => pulse_reg(4),
+--      WR_WRAP_AROUND        => config_reg(32*4+28),
+--      POST_TRIGGER          => config_reg(32*5+27 DOWNTO 32*5),
+--      WR_BUSY               => idata_data_wr_busy,
+--      WR_POINTER            => OPEN,
+--      --TRIGGER_POINTER       => status_reg(64*2+27 DOWNTO 64*2),
+--      WR_WRAPPED            => idata_data_wr_wrapped,
+--      RD_START              => pulse_reg(5),
+--      RD_ADDR_BEGIN         => (OTHERS => '0'),
+--      RD_ADDR_END           => config_reg(32*6+27 DOWNTO 32*6),
+--      --RD_BUSY               => status_reg(64*2+30),
+--      --
+--      DATA_FIFO_RESET       => idata_data_fifo_reset,
+--      INDATA_FIFO_WRCLK     => idata_adc_data_clk,
+--      INDATA_FIFO_Q         => idata_idata_fifo_q,
+--      INDATA_FIFO_FULL      => idata_idata_fifo_full,
+--      INDATA_FIFO_WREN      => idata_idata_fifo_wren,
+--      --
+--      OUTDATA_FIFO_RDCLK    => idata_data_fifo_rdclk,
+--      OUTDATA_FIFO_Q        => idata_data_fifo_dout,
+--      OUTDATA_FIFO_EMPTY    => idata_data_fifo_empty,
+--      OUTDATA_FIFO_RDEN     => idata_data_fifo_rden,
+--      --
+--      DBG_APP_ADDR          => sdram_app_addr,
+--      DBG_APP_EN            => sdram_app_en,
+--      DBG_APP_RDY           => sdram_app_rdy,
+--      DBG_APP_WDF_DATA      => sdram_app_wdf_data,
+--      DBG_APP_WDF_END       => sdram_app_wdf_end,
+--      DBG_APP_WDF_WREN      => sdram_app_wdf_wren,
+--      DBG_APP_WDF_RDY       => sdram_app_wdf_rdy,
+--      DBG_APP_RD_DATA       => sdram_app_rd_data,
+--      DBG_APP_RD_DATA_VALID => sdram_app_rd_data_valid
+--    );
+--  idata_data_fifo_reset <= pulse_reg(2);
+--  --status_reg(64*2+28)    <= idata_data_wr_busy;
+--  --status_reg(64*2+29)    <= idata_data_wr_wrapped;
+--  --
+--  channel_sel_inst : channel_sel
+--    PORT MAP (
+--      CLK             => idata_adc_data_clk,  -- fifo wrclk
+--      RESET           => reset,
+--      SEL             => config_reg(32*7+7 DOWNTO 32*7),
+--      --
+--      DATA_FIFO_RESET => idata_data_fifo_reset,
+--      --
+--      INDATA_Q        => idata_channel_avg_outdata_q,
+--      DATA_FIFO_WREN  => idata_data_fifo_wren,
+--      DATA_FIFO_FULL  => idata_data_fifo_full,
+--      --
+--      OUTDATA_FIFO_Q  => idata_idata_fifo_q,
+--      DATA_FIFO_RDEN  => idata_idata_fifo_rden,
+--      DATA_FIFO_EMPTY => idata_idata_fifo_empty
+--    );
+--  idata_idata_fifo_rden <= NOT idata_idata_fifo_full;
+--  idata_idata_fifo_wren <= NOT idata_idata_fifo_empty;
+--  idata_data_fifo_wren  <= config_reg(32*6+31) AND idata_channel_avg_outvalid;
+--  --
+--  channel_avg_inst : channel_avg
+--    PORT MAP (
+--      RESET           => reset,
+--      CLK             => idata_adc_data_clk,
+--      -- high 4-bit is offset, 2**(low 4-bit) is number of points to average    
+--      CONFIG          => config_reg(32*7+15 DOWNTO 32*7+8),
+--      TRIG            => idata_data_wr_start,
+--      INDATA_Q        => idata_data_fifo_din,
+--      OUTVALID        => idata_channel_avg_outvalid,
+--      OUTDATA_Q       => idata_channel_avg_outdata_q
+--    );
+--  --
+--  dbg_ila_probe3(27 DOWNTO 0)               <= sdram_app_addr;
+--  dbg_ila_probe3(28)                        <= sdram_app_en;
+--  dbg_ila_probe3(29)                        <= sdram_app_rdy;
+--  dbg_ila_probe3(30)                        <= sdram_app_wdf_wren;
+--  dbg_ila_probe3(31)                        <= sdram_app_wdf_rdy;
+--  dbg_ila_probe3(32)                        <= sdram_app_wdf_end;
+--  dbg_ila_probe3(1023 DOWNTO 512)           <= sdram_app_wdf_data;
+--  dbg_ila_probe3(1024+1023 DOWNTO 1024+512) <= sdram_app_rd_data;
+--  dbg_ila_probe3(33)                        <= sdram_app_rd_data_valid;
+--  dbg_ila_probe3(511 DOWNTO 336)            <= status_reg;
   ---------------------------------------------> SDRAM
 
   -- clock output
@@ -1299,7 +1294,7 @@ BEGIN
       din        => din,
       data_in    => FMC_HPC_HA_P(9) ,
       div        => div,
-      fifo_rd_en => control_data_fifo_rdreq,
+      fifo_rd_en => idata_data_fifo_rden,
       clk        => clk_sr_contr,
       clk_sr     => FMC_HPC_LA_P(20),
       data_out   => FMC_HPC_LA_P(33),
