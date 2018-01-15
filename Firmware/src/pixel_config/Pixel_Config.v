@@ -7,7 +7,7 @@
  
 `timescale 1ns / 1ps
 
-module Pixle_Config #(parameter DIV_WIDTH=6,  //% @param width of division factor
+module Pixel_Config #(parameter DIV_WIDTH=6,  //% @param width of division factor
                       parameter COUNT_WIDTH=64, //% @param Width of internal counter of Clock_Div module, it must be greater than 2**DIV_WIDTH.
                       parameter DATA_WIDTH=15, //% @param Width of data for each pixel configuration
                       parameter SHIFT_DIRECTION=1, //% @param 1: MSB out first, 0: LSB out first

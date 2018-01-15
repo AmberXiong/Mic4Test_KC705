@@ -262,33 +262,35 @@ ARCHITECTURE Behavioral OF top IS
   ---------------------------------------------< TOP_SR
   COMPONENT Top_SR IS
     GENERIC (
-      WIDTH : positive :=  170 ;
-      CNT_WIDTH : positive :=  8 ;
-      DIV_WIDTH : positive := 6 ;
-      COUNT_WIDTH : positive := 64 ;
-      SHIFT_DIRECTION : positive := 1 ;
-      READ_TRIG_SRC : natural := 0 ;
-      READ_DELAY : natural := 1
+      WIDTH           : positive := 170;
+      CNT_WIDTH       : positive := 8;
+      DIV_WIDTH       : positive := 6;
+      COUNT_WIDTH     : positive := 64;
+      VALID_WIDTH     : positive := 32;
+      NUM_WIDTH       : positive := 4;
+      FIFO_WIDTH      : positive := 36;
+      SHIFT_DIRECTION : positive := 1;
+      READ_TRIG_SRC   : natural  := 0;
+      READ_DELAY      : natural  := 1
     );
     PORT (
       clk_in      :IN   std_logic;
       rst         :IN   std_logic;
       start       :IN   std_logic;
-      din         :IN   std_logic_vector(169 DOWNTO 0);
-      data_in_p   :IN   std_logic;
-      data_in_n   :IN   std_logic;
+      wr_en       :IN   std_logic;
+      din         :IN   std_logic_vector(15 DOWNTO 0);
+      data_in     :IN   std_logic;
       div         :IN   std_logic_vector(5 DOWNTO 0);
+      fifo_rd_en  :IN   std_logic;
       clk         :OUT  std_logic;
-      clk_sr_p    :OUT  std_logic;
-      clk_sr_n    :OUT  std_logic;
-      data_out_p  :OUT  std_logic;
-      data_out_n  :OUT  std_logic;
-      load_sr_p   :OUT  std_logic;
-      load_sr_n   :OUT  std_logic;
-      valid       :OUT  std_logic;
-      dout        :OUT  std_logic_vector(169 DOWNTO 0)
+      clk_sr      :OUT  std_logic;
+      data_out    :OUT  std_logic;
+      load_sr     :OUT  std_logic;
+      fifo_empty  :OUT  std_logic;
+      fifo_q      :OUT  std_logic_vector(35 DOWNTO 0)
     );
   END COMPONENT;
+ 
   ---------------------------------------------> TOP_SR
   ---------------------------------------------< PULSE_SYNCHRONISE
   COMPONENT pulse_synchronise
@@ -472,7 +474,7 @@ ARCHITECTURE Behavioral OF top IS
   END COMPONENT;
   ---------------------------------------------> debug : ILA and VIO (`Chipscope')
   ---------------------------------------------< Mic4 pixel config
-  COMPONENT Pixle_Config
+  COMPONENT Pixel_Config
     GENERIC (
       DIV_WIDTH : positive := 6;
       COUNT_WIDTH : positive := 64;
@@ -504,10 +506,10 @@ ARCHITECTURE Behavioral OF top IS
     );
     PORT (
       clk_100MHz : IN std_logic;
-      RESET : IN std_logic;
-      pulse_in : IN std_logic;
-      ts_data : INOUT std_logic;
-      MEM_OUT : OUT std_logic_vector(TS_COUNT_WIDTH-1 DOWNTO 0)
+      RESET      : IN std_logic;
+      pulse_in   : IN std_logic;
+      ts_data    : INOUT std_logic;
+      MEM_OUT    : OUT std_logic_vector(TS_COUNT_WIDTH-1 DOWNTO 0)
     );
   END COMPONENT;
   ---------------------------------------------> Mic4 temperature sensor  
@@ -726,11 +728,15 @@ ARCHITECTURE Behavioral OF top IS
   ATTRIBUTE mark_debug OF sdram_app_rd_data_valid : SIGNAL IS "true";
   ---------------------------------------------> debug
   ---------------------------------------------< TOP_SR
-  SIGNAL div                               : std_logic_vector (5 DOWNTO 0);
-  SIGNAL din                               : std_logic_vector (169 DOWNTO 0);
-  SIGNAL dout                              : std_logic_vector( 169 DOWNTO 0);
-  SIGNAL valid                             : std_logic;
+--  SIGNAL div                               : std_logic_vector (5 DOWNTO 0);
+--  SIGNAL din                               : std_logic_vector (169 DOWNTO 0);
+--  SIGNAL dout                              : std_logic_vector( 169 DOWNTO 0);
+--  SIGNAL valid                             : std_logic;
+--  SIGNAL clk_sr_contr                      : std_logic;
+  SIGNAL div                               : std_logic_vector(5 DOWNTO 0);
+  SIGNAL din                               : std_logic_vector(15 DOWNTO 0);
   SIGNAL clk_sr_contr                      : std_logic;
+  SIGNAL fifo_q                            : std_logic_vector(35 DOWNTO 0);
   ---------------------------------------------> TOP_SR
   ---------------------------------------------< PULSE_SYNCHRONISE
   SIGNAL pulse_in                          : std_logic;
@@ -1269,37 +1275,37 @@ BEGIN
   --LED8Bit(5 DOWNTO 1) <= (OTHERS => '0');
 
   ---------------------------------------------< TOP_SR
-  div                      <= config_reg(175 DOWNTO 170);
-  din                      <= config_reg(169 DOWNTO 0);
-  status_reg(169 DOWNTO 0) <= dout(169 DOWNTO 0);
-  status_reg(170)          <= valid;
+  div <= config_reg(22 DOWNTO 17);
+  din <= config_reg(15 DOWNTO 0);
+  idata_data_fifo_dout <= fifo_q(31 DOWNTO 0) WHEN config(16)= '1'  ELSE x"0000"; -- x"0000" will be modified to FD_OUT of mic4 chip when the receiver is done.
   Top_SR_0 : Top_SR
     GENERIC MAP (
-      WIDTH =>  170 ,
-      CNT_WIDTH =>  8 ,
-      DIV_WIDTH => 6 ,
-      COUNT_WIDTH => 64 ,
-      SHIFT_DIRECTION => 1 ,
-      READ_TRIG_SRC => 0 ,
-      READ_DELAY => 1
+      WIDTH           => 200,
+      CNT_WIDTH       => 8,
+      DIV_WIDTH       => 6,
+      COUNT_WIDTH     => 64,
+      VALID_WIDTH     => 32,
+      NUM_WIDTH       => 4,
+      FIFO_WIDTH      => 36,
+      SHIFT_DIRECTION => 1,
+      READ_TRIG_SRC   => 0,
+      READ_DELAY      => 1
     )
     PORT MAP (
       clk_in     => clk_100MHz,
       rst        => reset,
       start      => pulse_out,
+      wr_en      => pulse_reg(3),
       din        => din,
-      data_in_p  => FMC_HPC_LA_P(20),
-      data_in_n  => FMC_HPC_LA_N(20),
+      data_in    => FMC_HPC_HA_P(9) ,
       div        => div,
+      fifo_rd_en => control_data_fifo_rdreq,
       clk        => clk_sr_contr,
-      clk_sr_p   => FMC_HPC_LA_P(18),
-      clk_sr_n   => FMC_HPC_LA_N(18),
-      data_out_p => FMC_HPC_LA_P(17),
-      data_out_n => FMC_HPC_LA_N(17),
-      load_sr_p  => FMC_HPC_LA_P(19),
-      load_sr_n  => FMC_HPC_LA_N(19),
-      valid      => valid,
-      dout       => dout
+      clk_sr     => FMC_HPC_LA_P(20),
+      data_out   => FMC_HPC_LA_P(33),
+      load_sr    => FMC_HPC_LA_P(31),
+      fifo_empty => idata_data_fifo_empty,
+      fifo_q     => fifo_q
     );
   ---------------------------------------------> TOP_SR
   ---------------------------------------------< PULSE_SYNCHRONISE
@@ -1314,8 +1320,6 @@ BEGIN
     );
   ---------------------------------------------> PULSE_SYNCHRONISE
   ---------------------------------------------< shiftreg driver for DAC8568
-  spi_sync_n1 <= spi_sync_n WHEN config_reg(16) = '0' ELSE '1';
-  spi_sync_n2 <= spi_sync_n WHEN config_reg(16) = '1' ELSE '1';   
   dac8568_inst : fifo2shiftreg
     GENERIC MAP (
       DATA_WIDTH        => 32,          -- parallel data width
@@ -1339,46 +1343,10 @@ BEGIN
       DATAOUT  => OPEN,
       -- serial interface
       CLK_DIV  => x"0002",
-      SCLK     => spi_sclk,
-      DOUT     => spi_dout,
-      SYNCn    => spi_sync_n,
+      SCLK     => FMC_HPC_LA_P(9),
+      DOUT     => FMC_HPC_LA_P(13),
+      SYNCn    => FMC_HPC_LA_P(5),
       DIN      => spi_din
-    );
-  spi_sclk_obufds_inst : OBUFDS
-    GENERIC MAP (
-      IOSTANDARD => "LVDS"
-    )
-    PORT MAP (
-      O  => FMC_HPC_LA_P(13),  -- Diff_p output (connect directly to top-level port)
-      OB => FMC_HPC_LA_N(13),  -- Diff_n output (connect directly to top-level port)
-      I  => spi_sclk
-    );
-  spi_dout_obufds_inst : OBUFDS
-    GENERIC MAP (
-      IOSTANDARD => "LVDS"
-    )
-    PORT MAP (
-      O  => FMC_HPC_LA_P(14),  -- Diff_p output (connect directly to top-level port)
-      OB => FMC_HPC_LA_N(14),  -- Diff_n output (connect directly to top-level port)
-      I  => spi_dout
-    );
-  spi_sync_n1_obufds_inst : OBUFDS
-    GENERIC MAP (
-      IOSTANDARD => "LVDS"
-    )
-    PORT MAP (
-      O  => FMC_HPC_LA_P(11),  -- Diff_p output (connect directly to top-level port)
-      OB => FMC_HPC_LA_N(11),  -- Diff_n output (connect directly to top-level port)
-      I  => spi_sync_n1
-    );
-  spi_sync_n2_obufds_inst : OBUFDS
-    GENERIC MAP (
-      IOSTANDARD => "LVDS"
-    )
-    PORT MAP (
-      O  => FMC_HPC_LA_P(12),  -- Diff_p output (connect directly to top-level port)
-      OB => FMC_HPC_LA_N(12),  -- Diff_n output (connect directly to top-level port)
-      I  => spi_sync_n2
     );
   ---------------------------------------------> shiftreg driver for DAC8568
   ---------------------------------------------< Mic4 pixel config
@@ -1411,7 +1379,7 @@ BEGIN
     PORT MAP (
       clk_100MHz => control_clk,
       RESET      => reset,
-      pulse_in   => pulse_reg(3),
+      pulse_in   => pulse_reg(4),
       ts_data    => FMC_HPC_HA_P(21),
       MEM_OUT    => mem_out
    );

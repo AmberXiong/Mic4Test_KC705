@@ -169,6 +169,8 @@ set files [list \
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/SR_Control.v"]"\
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Clock_SR.v"]"\
  "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Top_SR.v"]"\
+ "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Config_data_Combination.v"]"\
+ "[file normalize "$origin_dir/../src/tm_shiftreg_rw/Format_Data.v"]"\
  "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config_statemachine.v"]"\
  "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config.v"]"\
  "[file normalize "$origin_dir/../src/pixel_config/Temp_Sensor.v"]"\
@@ -590,7 +592,7 @@ add_files -norecurse -fileset $obj $files
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- "[file normalize "$origin_dir/../ipcore_dir/KC705/fifo32to16/fifo32to16.xci"]"\
+ "[file normalize "$origin_dir/../ipcore_dir/KC705/fifo32to16/fifo_32to16.xci"]"\
 ]
 add_files -norecurse -fileset $obj $files
 
