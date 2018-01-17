@@ -174,6 +174,8 @@ set files [list \
  "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config_statemachine.v"]"\
  "[file normalize "$origin_dir/../src/pixel_config/Pixel_Config.v"]"\
  "[file normalize "$origin_dir/../src/pixel_config/Temp_Sensor.v"]"\
+ "[file normalize "$origin_dir/../src/pixel_config/Mic4_Cntrl.v"]"\
+ "[file normalize "$origin_dir/../src/pixel_config/Pulse_Strecher.v"]"\
  "[file normalize "$origin_dir/../src/fifo2shiftreg.vhd"]"\
  "[file normalize "$origin_dir/../src/shiftreg_drive.vhd"]"\
 ]

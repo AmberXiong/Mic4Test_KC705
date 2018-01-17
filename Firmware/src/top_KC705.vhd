@@ -512,7 +512,33 @@ ARCHITECTURE Behavioral OF top IS
       MEM_OUT    : OUT std_logic_vector(TS_COUNT_WIDTH-1 DOWNTO 0)
     );
   END COMPONENT;
-  ---------------------------------------------> Mic4 temperature sensor  
+  ---------------------------------------------> Mic4 temperature sensor
+  ---------------------------------------------< Mic4 control
+  COMPONENT Mic4_Cntrl
+    GENERIC (
+      DIV_WIDTH : positive := 6;
+      COUNT_WIDTH : positive := 64;
+      APULSE_LENGTH : positive := 100;
+      DPULSE_LENGTH : positive := 300;
+      GRST_LENGTH : positive := 5
+    );
+    PORT (
+      clk_in      : IN std_logic; --250MHz
+      clk_control : IN std_logic; --100MHz
+      rst         : IN std_logic;
+      div0        : IN std_logic_Vector(DIV_WIDTH-1 DOWNTO 0);
+      div1        : IN std_logic_Vector(DIV_WIDTH-1 DOWNTO 0);
+      pulse_a     : IN std_logic;
+      pulse_d     : IN std_logic;
+      pulse_grst  : IN std_logic;
+      clk_out     : OUT std_logic; --CLK_IN of mic4
+      lt_out      : OUT std_logic; --LT_IN of mic4
+      a_pulse_out : OUT std_logic;
+      d_pulse_out : OUT std_logic;
+      grst_n_out  : OUT std_logic;
+    );
+  END COMPONENT;
+  ---------------------------------------------> Mic4 control
     
   -- Signals
   SIGNAL reset                             : std_logic;  
@@ -752,6 +778,12 @@ ARCHITECTURE Behavioral OF top IS
   ---------------------------------------------< Mic4 temperature sensor
   SIGNAL mem_out     : std_logic_vector(31 DOWNTO 0);
   ---------------------------------------------> Mic4 temperature sensor
+  ---------------------------------------------< Mic4 control
+  SIGNAL  div0_mc : std_logic_vector(5 DOWNTO 0);
+  SIGNAL  div1_mc : std_logic_vector(5 DOWNTO 0);
+  SIGNAL  clk_out_mc : std_logic;
+  SIGNAL  lt_out_mc : std_logic;
+  ---------------------------------------------> Mic4 control
 
 BEGIN
   ---------------------------------------------< Clock
@@ -1379,5 +1411,52 @@ BEGIN
       MEM_OUT    => mem_out
    );
   ---------------------------------------------> Mic4 temperature sensor
+  ---------------------------------------------< Mic4 control
+  div0_mc <= config_reg(37 DOWNTO 32);
+  div1_mc <= config_reg(43 DOWNTO 38);
+  Mic4_Cntrl_inst : Mic4_Cntrl
+    GENERIC MAP(
+      DIV_WIDTH     => 6,
+      COUNT_WIDTH   => 64,
+      APULSE_LENGTH => 100,
+      DPULSE_LENGTH => 300,
+      GRST_LENGTH   => 5
+    )
+    PORT MAP (
+      clk_in => clk_250MHz, --250MHz
+      clk_control => control_clk, --100MHz
+      rst  => reset,
+      div0 => div0_mc,
+      div1 => div1_mc,
+      pulse_grst => pulse_reg(5),
+      pulse_a => pulse_reg(6),
+      pulse_d => pulse_reg(7),
+      clk_out => clk_out_mc, -- CLK_IN of mic4
+      lt_out => lt_out_mc, --LT_IN of mic4
+      a_pulse_out => FMC_HPC_LA_P(21),
+      d_pulse_out => FMC_HPC_LA_P(24),
+      grst_n_out => FMC_HPC_LA_P(28)
+       );
+   );
+  clkmc_obufds_inst : OBUFDS
+    GENERIC MAP (
+      IOSTANDARD => "LVDS"
+    )
+    PORT MAP (
+      O  => FMC_HPC_LA_P(29) ,  -- Diff_p output (connect directly to top-level port)
+      OB => FMC_HPC_LA_N(29),  -- Diff_n output (connect directly to top-level port)
+      I  => clk_out_mc
+   );
+
+  clkmc_obufds_inst : OBUFDS
+    GENERIC MAP (
+      IOSTANDARD => "LVDS"
+    )
+    PORT MAP (
+      O  => FMC_HPC_LA_P(19),  -- Diff_p output (connect directly to top-level port)
+      OB => FMC_HPC_LA_N(19),  -- Diff_n output (connect directly to top-level port)
+      I  => lt_out_mc
+   );
+  ---------------------------------------------> Mic4 control
 
 END Behavioral;
