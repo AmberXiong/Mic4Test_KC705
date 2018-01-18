@@ -535,7 +535,7 @@ ARCHITECTURE Behavioral OF top IS
       lt_out      : OUT std_logic; --LT_IN of mic4
       a_pulse_out : OUT std_logic;
       d_pulse_out : OUT std_logic;
-      grst_n_out  : OUT std_logic;
+      grst_n_out  : OUT std_logic
     );
   END COMPONENT;
   ---------------------------------------------> Mic4 control
@@ -1438,8 +1438,8 @@ BEGIN
       a_pulse_out => FMC_HPC_LA_P(21),
       d_pulse_out => FMC_HPC_LA_P(24),
       grst_n_out => FMC_HPC_LA_P(28)
-       );
-   );
+    );
+
   clkmc_obufds_inst : OBUFDS
     GENERIC MAP (
       IOSTANDARD => "LVDS"
