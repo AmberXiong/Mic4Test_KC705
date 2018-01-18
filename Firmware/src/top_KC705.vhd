@@ -1414,6 +1414,8 @@ BEGIN
   ---------------------------------------------< Mic4 control
   div0_mc <= config_reg(37 DOWNTO 32);
   div1_mc <= config_reg(43 DOWNTO 38);
+  FMC_HPC_LA_P(30) <= config_reg(44); --STROBE
+  FMC_HPC_LA_P(32) <= reset; --RESET
   Mic4_Cntrl_inst : Mic4_Cntrl
     GENERIC MAP(
       DIV_WIDTH     => 6,
