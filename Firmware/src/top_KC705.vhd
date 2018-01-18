@@ -1450,7 +1450,7 @@ BEGIN
       I  => clk_out_mc
    );
 
-  clkmc_obufds_inst : OBUFDS
+  ltmc_obufds_inst : OBUFDS
     GENERIC MAP (
       IOSTANDARD => "LVDS"
     )
