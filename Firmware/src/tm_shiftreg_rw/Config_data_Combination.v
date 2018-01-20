@@ -10,6 +10,7 @@
 module Config_data_Combination #(parameter DATA_WIDTH=170, //% @ param Width of data sent TM shift register.
                                  parameter CNT_WIDTH=8, //% @param Width of internal counter.
                                  parameter TMP_WIDTH=((DATA_WIDTH+15)/16)*16 //% Width of internal data register
+//                                 parameter CNT_VALUE=(DATA_WIDTH+15)/16
 //                                 parameter CONFIG_DIRECTION=0 //% @param 1: first data_in's MSB is MSB, 0: first dasta_in's LSB is LSB
    ) (
    input clk_in, //% control clock
@@ -22,6 +23,7 @@ module Config_data_Combination #(parameter DATA_WIDTH=170, //% @ param Width of 
 reg [CNT_WIDTH-1:0] counter;
 reg [TMP_WIDTH-1:0] data_tmp;
 reg [2:0] current_state, next_state;
+//reg [DATA_WIDTH-1:0] data_out_0;
 parameter s0=3'b001;
 parameter s1=3'b010;
 parameter s2=3'b100;
@@ -49,7 +51,7 @@ begin
   begin
   case(current_state)
     s0:next_state=(pulse==1)?s1:s0;
-    s1:next_state=(counter>=DATA_WIDTH)?s2:s0;
+    s1:next_state=(counter>= DATA_WIDTH)?s2:s0;
     s2:next_state=s0;
     default:next_state=s0;   
   endcase
@@ -62,6 +64,7 @@ begin
    begin
     data_tmp<=0;
     counter<=0;
+    data_out<=0;
    end
   else
    begin
@@ -69,43 +72,50 @@ begin
       s0:
        begin
         data_tmp<=data_tmp;
-        counter<=counter;       
+        counter<=counter;    
+        data_out<=data_out;   
        end
       s1:
        begin   //% first data input is LSB of data_tmp
        data_tmp<=data_tmp + (data_in << counter);
-       counter=counter+16;
+       counter=counter+5'b10000;
+       data_out<=data_out;
        end
       s2:
        begin
        data_tmp<=0;
        counter<=0;
+       data_out<=data_tmp[DATA_WIDTH-1:0];
        end       
       default:
        begin
        data_tmp<=0;
-       counter<=0;       
+       counter<=0;
+       data_out<=0;      
        end      
     endcase
    end
 end
 
-always@(posedge clk_in or posedge rst)
-begin
- if(rst)
-  begin
-  data_out<=0;
-  end
- else
-  begin
-  if(counter>=DATA_WIDTH)
-   begin
-   data_out<=data_tmp[DATA_WIDTH-1:0];
-   end
-  else
-   begin
-   data_out<=data_out;
-   end
-  end
-end
+//always@(posedge clk_in or posedge rst)
+//begin
+// if(rst)
+//  begin
+//  data_out_0<=0;
+//  data_out<=0;
+//  end
+// else
+//  begin
+//  if(counter>= DATA_WIDTH)
+//   begin
+//   data_out_0<=data_tmp[DATA_WIDTH-1:0];
+//   data_out<=data_out_0;
+//   end
+//  else
+//   begin
+//   data_out_0<=data_out_0;
+//   data_out<=data_out;
+//   end
+//  end
+//end
 endmodule

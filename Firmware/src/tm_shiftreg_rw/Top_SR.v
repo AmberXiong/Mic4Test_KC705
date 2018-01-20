@@ -88,36 +88,37 @@ SR_Control #(.DATA_WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH), .SHIFT_DIRECTION(SHIFT_D
         .start(start),
         .data_out(data_out),
         .load_sr(load_sr),
-        .count_delay(count_delay)
+        .count_delay(count_delay),
+        .clk_sr(clk_sr)
         );
         
-reg start_reg;
-wire start_tmp;
+//reg start_reg;
+//wire start_tmp;
 
-assign start_tmp=start_reg;
-always@(posedge clk or posedge rst)
- begin
-  if(rst)
-  begin
-  start_reg<=0;
-  end
- else
-  begin
-  start_reg<=start;
-  end
- end
+//assign start_tmp=start_reg;
+//always@(posedge clk or posedge rst)
+// begin
+//  if(rst)
+//  begin
+//  start_reg<=0;
+//  end
+// else
+//  begin
+//  start_reg<=start;
+//  end
+// end
  
-Clock_SR #(.WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH), .COUNT_WIDTH(COUNT_WIDTH), .DIV_WIDTH(DIV_WIDTH))        
-   clock_sr_0(
-        .clk_in(clk_in),
-        .rst(rst),
-        .count(count_delay),
-        .counter(counter),
-        .start(start),
-        .start_tmp(start_tmp),
-        .div(div),
-        .clk_sr(clk_sr)
-   );
+//Clock_SR #(.WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH), .COUNT_WIDTH(COUNT_WIDTH), .DIV_WIDTH(DIV_WIDTH))        
+//   clock_sr_0(
+//        .clk_in(clk_in),
+//        .rst(rst),
+//        .count(count_delay),
+//        .counter(counter),
+//        .start(start),
+//        .start_tmp(start_tmp),
+//        .div(div),
+//        .clk_sr(clk_sr)
+//   );
 assign trig= (READ_TRIG_SRC==1)? load_sr: start;
         
 Receive_Data #(.DATA_WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH), .SHIFT_DIRECTION(SHIFT_DIRECTION), .READ_DELAY(READ_DELAY))

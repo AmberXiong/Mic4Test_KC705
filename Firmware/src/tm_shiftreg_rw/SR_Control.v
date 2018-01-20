@@ -17,18 +17,32 @@ module SR_Control #(
     input start, //% start signal
     output reg data_out, //% data sent to shift register
     output reg load_sr, //% load signal sent to shift register
-    output reg [CNT_WIDTH-1:0] count_delay //% count signal sent to Clock_SR.v.
+    output reg [CNT_WIDTH-1:0] count_delay, //% count signal sent to Clock_SR.v.
+    output clk_sr
     );
     
 reg [4:0] current_state_out, next_state_out;
 reg [CNT_WIDTH-1:0] count;
+reg en_clk, en_clk_1;
 parameter s0=5'b00001;
 parameter s1=5'b00010;
 parameter s2=5'b00100;
 parameter s3=5'b01000;
 parameter s4=5'b10000;
 
-//assign clk_sr=~rst&&~clk||~rst&&clk&&load_sr;    
+assign clk_sr=(en_clk==1'b1)?~clk:1;    
+
+always@(posedge clk or posedge rst)
+ begin
+  if(rst)
+   begin
+   en_clk_1<=0;
+   end
+  else
+   begin
+   en_clk_1<=en_clk;
+   end
+ end  
 
 //state machine 1, used to send signals to SR
 always@(posedge clk or posedge rst)
@@ -90,6 +104,7 @@ begin
   count_delay<=0;
   data_out<=1'b0;
   load_sr<=1'b0;
+  en_clk<=1'b0;
   end
  else
   begin
@@ -100,6 +115,7 @@ begin
       count_delay<=0;
       data_out<=1'b0;
       load_sr<=1'b0;
+      en_clk<=1'b0;
       end
 //    s1:
 //      begin
@@ -120,6 +136,7 @@ begin
         data_out<=din[count];
         end
        load_sr<=1'b0;
+       en_clk<=1'b1;
       end
     s3:
       begin
@@ -127,6 +144,7 @@ begin
       count_delay<=count_delay+1'b1;
       data_out<=1'b0;
       load_sr<=1'b1;
+      en_clk<=1'b0;
       end
     s4:
       begin
@@ -134,6 +152,7 @@ begin
       count_delay<=0;
       data_out<=1'b0;
       load_sr<=1'b0;
+      en_clk<=1'b0;
       end
     default:
       begin
@@ -141,6 +160,7 @@ begin
       count_delay<=0;
       data_out<=1'b0;
       load_sr<=1'b0;
+      en_clk<=1'b0;
       end
    endcase
   end

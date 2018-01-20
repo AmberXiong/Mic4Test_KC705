@@ -40,7 +40,7 @@ always@(current_state or rst or count or start or start_tmp)
     else
     begin
         case(current_state)
-            s0:next_state=(start==0&&start_tmp==1)?s1:s0;
+            s0:next_state=(start==1)?s1:s0;
             s1:next_state=(count==WIDTH+1'b1)?s0:s1;
 //            s2:next_state=s0;
             default:next_state=s0;
