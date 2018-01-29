@@ -40,8 +40,8 @@ module Top_SR #(parameter WIDTH=170, //% @param Width of data input and output
     input clk_in, //% clock input is synchronised with input signals' control clock.
     input rst, //% module reset 
     input start, //% start signal, it should be asserted after the last assertion of wr_en. 
-    input wr_en, //% enable signal for writing 16-bit din to data_to_send. 
-    input [15:0] din, //% 16-bit data input, to be sent to shift register.
+//    input wr_en, //% enable signal for writing 16-bit din to data_to_send. 
+    input [WIDTH-1:0] din, //% 16-bit data input, to be sent to shift register.
     input data_in, //% data from shift register
     input [DIV_WIDTH-1:0] div, //% clock frequency division factor 2**div
     input fifo_rd_en, //% control_interface FIFO full signal.
@@ -60,7 +60,7 @@ wire valid;
 wire [FIFO_WIDTH-1:0] data_to_fifo;
 wire [CNT_WIDTH-1:0] count_delay;
 wire [COUNT_WIDTH-1:0] counter;
-wire [WIDTH-1:0] data_to_send;
+//wire [WIDTH-1:0] data_to_send;
 wire [WIDTH-1:0] data_receive;
 
 
@@ -72,17 +72,17 @@ Clock_Div #(.DIV_WIDTH(DIV_WIDTH), .COUNT_WIDTH(COUNT_WIDTH))
         .counter(counter),
         .clk_out(clk)
         );
-Config_data_Combination #(.DATA_WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH))
-    config_data_combination_inst(
-        .clk_in(clk_in), 
-        .rst(rst), 
-        .data_in(din), 
-        .pulse(wr_en),
-        .data_out(data_to_send)
-        );            
+//Config_data_Combination #(.DATA_WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH))
+//    config_data_combination_inst(
+//        .clk_in(clk_in), 
+//        .rst(rst), 
+//        .data_in(din), 
+//        .pulse(wr_en),
+//        .data_out(data_to_send)
+//        );            
 SR_Control #(.DATA_WIDTH(WIDTH), .CNT_WIDTH(CNT_WIDTH), .SHIFT_DIRECTION(SHIFT_DIRECTION))
      sr_control_0(
-        .din(data_to_send),
+        .din(din),
         .clk(clk),
         .rst(rst),
         .start(start),

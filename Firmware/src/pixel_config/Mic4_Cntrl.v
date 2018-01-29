@@ -26,7 +26,7 @@ output d_pulse_out,
 output grst_n_out
     );
 
-wire [COUNT_WIDTH-1:0] counter;
+wire [COUNT_WIDTH-1:0] counter0, counter1;
 wire grst_temp;
 
 Clock_Div #(.DIV_WIDTH(DIV_WIDTH), .COUNT_WIDTH(COUNT_WIDTH))
@@ -34,7 +34,7 @@ Clock_Div #(.DIV_WIDTH(DIV_WIDTH), .COUNT_WIDTH(COUNT_WIDTH))
             .clk_in(clk_in),
             .rst(rst),
             .div(div0),
-            .counter(counter),
+            .counter(counter0),
             .clk_out(clk_out)
             );
 
@@ -43,7 +43,7 @@ Clock_Div #(.DIV_WIDTH(DIV_WIDTH), .COUNT_WIDTH(COUNT_WIDTH))
             .clk_in(clk_in),
             .rst(rst),
             .div(div1),
-            .counter(counter),
+            .counter(counter1),
             .clk_out(lt_out)
             );
 

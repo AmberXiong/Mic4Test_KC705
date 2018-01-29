@@ -7,7 +7,9 @@
 //% and recieve the data from chip. 
 `timescale 1ns / 1ps
 
-module Temp_Sensor #(parameter TS_COUNT_WIDTH=32 //% Width of internal counter
+module Temp_Sensor #(parameter TS_COUNT_WIDTH=32, //% Width of internal counter
+                     parameter PLS_LOW=20,
+                     parameter PLS_HIGH=30
   ) (
   input clk_100MHz, //% control clock
   input RESET, //% system reset
@@ -55,11 +57,31 @@ always@(c_state or RESET or pulse_in or ts_data or t_counter or cnt_20 or cnt_30
   else
    begin
     case(c_state)
-      s0: begin n_state=(pulse_in==1)?s1:s0; end
-      s1: begin n_state=(cnt_20==5'b10100)?s2:s1; end
-      s2: begin n_state=(cnt_30==5'b11110)?s3:s2; end
-      s3: begin n_state=(ts_data==1)?s4:s3; end
-      s4: begin n_state=(ts_data==0)?s5:s4; end
+      s0:
+        begin
+          if(pulse_in) begin n_state=s1; end
+          else begin n_state=s0; end
+        end
+      s1:
+        begin
+          if(cnt_20==PLS_LOW) begin n_state=s2; end
+          else begin n_state=s1; end
+        end
+      s2:
+        begin
+          if(cnt_30==PLS_HIGH) begin n_state=s3; end
+          else begin n_state=s2; end
+        end
+      s3:
+        begin
+        if(ts_data) begin n_state=s4; end
+        else begin n_state=s3; end
+        end
+      s4:
+        begin
+          if(!ts_data) begin n_state=s5; end
+          else begin n_state=s4; end
+        end
       s5: begin n_state=s0; end
       default: begin n_state=s0; end
     endcase

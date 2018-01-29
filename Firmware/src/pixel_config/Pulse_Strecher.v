@@ -28,8 +28,16 @@ always@(c_state or pulse_in or rst or counter)
  else
   begin
    case(c_state)
-    s0: begin n_state=(pulse_in==1)?s1:s0; end
-    s1: begin n_state=(counter==PULSE_LENGTH)?s0:s1; end
+    s0:
+      begin
+        if(pulse_in) begin n_state=s1; end
+        else begin n_state=s0; end
+      end
+    s1:
+      begin
+        if(counter==PULSE_LENGTH) begin n_state=s0; end
+        else begin n_state=s1; end
+      end
     default: begin n_state=s0; end
    endcase
   end

@@ -49,13 +49,25 @@ always@(c_state or RESET or START or BUSY or count or EMPTY)
   else
    begin
     case(c_state)
-     s0: begin n_state=(START==1)?s1:s0; end
-     s1: begin n_state=(EMPTY==1)?s0:
-                        (BUSY==0)?s2:s1; end
+     s0:
+       begin
+         if(START) begin n_state=s1; end
+         else begin n_state=s0; end
+       end
+     s1:
+       begin
+         if(EMPTY) begin n_state=s0; end
+         else if(!BUSY) begin n_state=s2; end
+         else begin n_state=s1; end
+       end
      s2: begin n_state=s3; end
      s3: begin n_state=s4; end
      s4: begin n_state=s5; end
-     s5: begin n_state=(count==4'b1111)?s1:s5; end
+     s5:
+       begin
+         if(count==DATA_WIDTH) begin n_state=s1; end
+         else begin n_state=s5; end
+       end
      default: begin n_state=s0; end
     endcase
    end
